@@ -12,60 +12,54 @@
   }
   else
   {
-    $stmt = $conn->prepare(" SELECT FirstName,LastName,Phone,Email FROM ContactList WHERE (FirstName like ? OR LastName like ? OR Phone Like ? OR Email like ?) AND UserId = ?");
+    $stmt = $conn->prepare(" SELECT ID,UserId,FirstName,LastName,Phone,Email FROM ContactList WHERE (FirstName like ? OR LastName like ? OR Phone Like ? OR Email like ?) AND UserId = ?");
     $searchInfo = "%" .$inData["search"] . "%";
     $stmt->bind_param("ssssi", $searchInfo , $searchInfo, $searchInfo, $searchInfo, $inData["UserId"]);
     $stmt->execute();
 
     $result = $stmt->get_result();
 
-    while($row = $result->fetch_assoc())
-		{
-			if( $searchCount > 0 )
-			{
-				$searchResults .= ",";
-			}
-			$searchCount++;
-			$searchResults .= '"' . $row["FirstName"] . ' '. '"';
-			$searchResults .= '"' . $row["LastName"] . ' '. '"';
-			$searchResults .= '"' . $row["Phone"] . ' '. '"';
-			$searchResults .= '"' . $row["Email"] . ' '. '"';
-		}
+    $dbdata = array();
 
-		if( $searchCount == 0 )
-		{
-			returnWithError( "No Records Found" );
-		}
-		else
-		{
-			returnWithInfo( $searchResults );
-		}
+    while ( $row = $result->fetch_assoc())  
+    {
+        $dbdata[]=$row;
+    }
+    
+    if (!empty($dbdata))
+    {
+        sendArrayInfoAsJson( $dbdata );
+    }
+    else
+    {
+        returnWithError("No Records Found");
+    }
 
     $stmt->close();
     $conn->close();
   }
 
   function getRequestInfo()
-	{
-		return json_decode(file_get_contents('php://input'), true);
-	}
+{
+    return json_decode(file_get_contents('php://input'), true);
+}
 
-	function sendResultInfoAsJson( $obj )
-	{
-		header('Content-type: application/json');
-		echo $obj;
-	}
+function sendArrayInfoAsJson ( $dbdata )
+{
+    header('Content-type: application/json');
+    echo json_encode($dbdata);
+}
 
-	function returnWithError( $err )
-	{
-		$retValue = '{"id":0,"firstName":"","lastName":"","error":"' . $err . '"}';
-		sendResultInfoAsJson( $retValue );
-	}
+function sendResultInfoAsJson( $obj )
+{
+    header('Content-type: application/json');
+    echo $obj;
+}
 
-	function returnWithInfo( $searchResults )
-	{
-		$retValue = '{"results":[' . $searchResults . '],"error":""}';
-		sendResultInfoAsJson( $retValue );
-	}
+function returnWithError( $err )
+{
+    $retValue = '{"error":"' . $err . '"}';
+    sendResultInfoAsJson( $retValue );
+}
 
 ?>

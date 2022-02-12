@@ -3,6 +3,7 @@
 
 	$inData = getRequestInfo();
 	
+	$ID = 0;
 	$UserId = 0;
 	$FirstName = "";
 	$LastName = "";
@@ -17,7 +18,7 @@
 	}
 	else
 	{
-		$stmt = $conn->prepare("SELECT UserId,FirstName,LastName,Email,Phone,DateCreated FROM ContactList WHERE UserId=?");
+		$stmt = $conn->prepare("SELECT ID,UserId,FirstName,LastName,Email,Phone,DateCreated FROM ContactList WHERE UserId=?");
 		$stmt->bind_param("i", $inData["UserId"]);
 		$stmt->execute();
 		$result = $stmt->get_result();
