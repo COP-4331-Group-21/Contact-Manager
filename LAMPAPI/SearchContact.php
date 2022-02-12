@@ -1,31 +1,51 @@
 <?php
-	$inData = getRequestInfo();
-	
-	$search = $_POST['search'];
-	$userId = $inData["userId"];
-	$FirstName = $inData["FirstName"];
-	$LastName = $inData["LastName"];
-	$Email = $inData["Email"];
-	$Phone = $inData["Phone"];
-	$today = date("Y-m-d H:i:s"); 
-	$DateCreated = $today;
 
-	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "COP4331");
-	if ($conn->connect_error) 
-	{
-		returnWithError( $conn->connect_error );
-	} 
-	else 
-	{
-		$search = $_POST['search'];
-		$search = preg_replace("#[^0-9a-z] #i","",$search);
-		$sql = "SELECT * FROM contacts WHERE FirstName like '%$search%', LastName like '%search%', 
-		Email like '%search%', Phone like '%search%'";
-		$result = $conn->query($sql);
-		returnWithError("");
-	}	
+  $inData = getRequestInfo();
 
-	function getRequestInfo()
+  $searchResults = "";
+  $searchCount = 0;
+
+	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "COP4331"); 	
+  if( $conn->connect_error )
+  {
+    returnWithError( $conn->connect_error );
+  }
+  else
+  {
+    $stmt = $conn->prepare(" SELECT FirstName,LastName,Phone,Email FROM ContactList WHERE (FirstName like ? OR LastName like ? OR Phone Like ? OR Email like ?) AND UserId = ?");
+    $searchInfo = "%" .$inData["search"] . "%";
+    $stmt->bind_param("ssssi", $searchInfo , $searchInfo, $searchInfo, $searchInfo, $inData["UserId"]);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    while($row = $result->fetch_assoc())
+		{
+			if( $searchCount > 0 )
+			{
+				$searchResults .= ",";
+			}
+			$searchCount++;
+			$searchResults .= '"' . $row["FirstName"] . ' '. '"';
+			$searchResults .= '"' . $row["LastName"] . ' '. '"';
+			$searchResults .= '"' . $row["Phone"] . ' '. '"';
+			$searchResults .= '"' . $row["Email"] . ' '. '"';
+		}
+
+		if( $searchCount == 0 )
+		{
+			returnWithError( "No Records Found" );
+		}
+		else
+		{
+			returnWithInfo( $searchResults );
+		}
+
+    $stmt->close();
+    $conn->close();
+  }
+
+  function getRequestInfo()
 	{
 		return json_decode(file_get_contents('php://input'), true);
 	}
@@ -35,11 +55,17 @@
 		header('Content-type: application/json');
 		echo $obj;
 	}
-	
+
 	function returnWithError( $err )
 	{
-		$retValue = '{"error":"' . $err . '"}';
+		$retValue = '{"id":0,"firstName":"","lastName":"","error":"' . $err . '"}';
 		sendResultInfoAsJson( $retValue );
 	}
-	
+
+	function returnWithInfo( $searchResults )
+	{
+		$retValue = '{"results":[' . $searchResults . '],"error":""}';
+		sendResultInfoAsJson( $retValue );
+	}
+
 ?>
