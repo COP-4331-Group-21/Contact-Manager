@@ -8,8 +8,6 @@
 	$LastName = $inData["LastName"];
 	$Email = $inData["Email"];
 	$Phone = $inData["Phone"];
-	$today = date("Y-m-d H:i:s");
-	$DateCreated = $today;
 
 	$conn = new mysqli("localhost", "TheBeast", "WeLoveCOP4331", "COP4331"); 	
 	if( $conn->connect_error )
@@ -18,10 +16,12 @@
 	}
 	else
 	{
-		$stmt = $conn->prepare("UPDATE ContactList SET FirstName=?,LastName=?,Email=?,Phone=?, DateCreated=? WHERE ID=? AND UserId=?");
-		$stmt->bind_param("sssssss", $FirstName, $LastName, $Email, $Phone, $DateCreated, $ID ,$UserId);
+		$stmt = $conn->prepare("UPDATE ContactList SET FirstName=?,LastName=?,Email=?,Phone=? WHERE ID=? AND UserId=?");
+		$stmt->bind_param("ssssii", $FirstName, $LastName, $Email, $Phone, $ID ,$UserId);
 		$stmt->execute();
 		$result = $stmt->get_result();
+
+        returnWithInfo( $ID, $UserId, $FirstName, $LastName, $Email, $Phone, $DateCreated );
 		
 		$stmt->close();
 		$conn->close();
@@ -42,6 +42,12 @@
 	function returnWithError( $err )
 	{
 		$retValue = '{"error":"' . $err . '"}';
+		sendResultInfoAsJson( $retValue );
+	}
+
+    function returnWithInfo( $ID, $UserId, $FirstName, $LastName, $Email, $Phone, $DateCreated )
+	{
+		$retValue = '{"ID":"' . $ID . '","UserId":"' . $UserId . '","FirstName":"' . $FirstName . '","LastName":"' . $LastName . '","Email":"' . $Email . '","Phone":"' . $Phone . '","error":""}';
 		sendResultInfoAsJson( $retValue );
 	}
 	
