@@ -77,9 +77,9 @@ function displayAll()
                         if (this.readyState == 4 && this.status == 200)
                         {
                                 let jsonObject = JSON.parse( xhr.responseText );
-								var mydata = JSON.stringify(jsonObject);
-								// document.getElementById("tableResult").innerHTML = mydata;
-								if(jsonObject == null)
+                                var mydata = JSON.stringify(jsonObject);
+                                // document.getElementById("tableResult").innerHTML = mydata;
+                                if(jsonObject == null)
                                 {
                                         document.getElementById("tableResult").innerHTML = "No contacts returned";
                                         return;
@@ -88,9 +88,9 @@ function displayAll()
                                 {
                                         document.getElementById("tableResult").innerHTML = jsonObject.length + " contacts matching your search.";
                                 }
-								$('#table').bootstrapTable('load', jsonObject);
-								
-						
+                                $('#table').bootstrapTable('load', jsonObject);
+
+
                         }
                 };
                 xhr.send(jsonPayload);
@@ -224,7 +224,7 @@ function doSearch()
                                         document.getElementById("searchResults").innerHTML = jsonObject.length + " contacts matching your search.";
                                 }
                                 $('#table').bootstrapTable('load', jsonObject);
-                                
+
                         }
                 };
                 xhr.send(jsonPayload);
@@ -235,19 +235,32 @@ function doSearch()
         }
 }
 
-function edit()
+function doUpdate()
 {
         readCookie();
 
+        let selectedObject = $("#table").bootstrapTable('getSelections');
+	let jsonString = JSON.stringify(selectedObject);
+	jsonString = jsonString.replace('[{','{');
+	jsonString = jsonString.replace('}]','}');
+		// document.getElementById("tableResult").innerHTML = jsonString;
+		
+	selectedObject = JSON.parse(jsonString);
+	let id = selectedObject.ID;
         let firstName = document.getElementById("firstName").value;
         let lastName = document.getElementById("lastName").value;
         let email = document.getElementById("email").value;
-        let phone = document.getElementById("phone").value;
-        let id = document.getElementById("ID").value;
+        let phone = document.getElementById("phoneNumber").value;
+
+        //let firstName = selectedObject.FirstName;
+        //let lastName = selectedObject.LastName;
+        //let email = selectedObject.Email;
+        //let phone = selectedObject.Phone;
 
         document.getElementById("updateContactResult").innerHTML = "";
 
-        let temp = {ID:id};
+        let temp = {ID:id,UserId:userId,FirstName:firstName,LastName:lastName,Email:email,Phone:phone};
+        console.log(temp);
         let jsonPayload = JSON.stringify(temp);
 
         let url = urlBase + '/UpdateContact.' + extension;
@@ -261,9 +274,9 @@ function edit()
                 {
                         if(this.readyState == 4 && this.status == 200)
                         {
-                                let jsonObject = JSON.parse(xhr.responseText);
+                                //let jsonObject = JSON.parse(xhr.responseText);
                                 document.getElementById("updateContactResult").innerHTML = "Contact has been updated";
-                                window.location.href = "menu.html";
+                                //window.location.href = "menu.html";
                         }
                 };
                 xhr.send(jsonPayload);
@@ -274,9 +287,19 @@ function edit()
         }
 }
 
-function doDelete(id)
+function doDelete()
 {
-        let temp = {ID:id,UserId:userId};
+        let selectedObject = $("#table").bootstrapTable('getSelections');
+		let jsonString = JSON.stringify(selectedObject);
+		jsonString = jsonString.replace('[{','{');
+		jsonString = jsonString.replace('}]','}');
+		// document.getElementById("tableResult").innerHTML = jsonString;
+		
+		selectedObject = JSON.parse(jsonString);
+		let id = selectedObject.ID;
+		// document.getElementById("tableResult").innerHTML = id;
+		
+		let temp = {ID:id,UserId:userId};
         let jsonPayload = JSON.stringify(temp);
 
         let url = urlBase + '/DeleteContact.' + extension;
@@ -290,8 +313,10 @@ function doDelete(id)
                 {
                         if(this.readyState == 4 && this.status == 200)
                         {
-                                //search();
-                                document.getElementById("searchResults").innerHTML = "";
+                                //let jsonObject = JSON.parse( xhr.responseText );
+				document.getElementById("searchResults").innerHTML = "Contact deleted from list";
+				$('#table').bootstrapTable('load', jsonObject);
+				displayAll();
                         }
                 };
                 xhr.send(jsonPayload);
@@ -301,3 +326,18 @@ function doDelete(id)
                 document.getElementById("searchResults").innerHTML = err.message
         }
 }
+
+function populateEditModal()
+{
+let selectedObject = $("#table").bootstrapTable('getSelections');
+        let jsonString = JSON.stringify(selectedObject);
+        jsonString = jsonString.replace('[{','{');
+        jsonString = jsonString.replace('}]','}');
+let obj = JSON.parse(jsonString);
+
+let First = obj.FirstName;
+let Last = obj.LastName;
+let Email = obj.Email;
+let Phone = obj.Phone;
+let id = obj.ID;
+};
