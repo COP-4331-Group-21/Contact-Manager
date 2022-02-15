@@ -33,7 +33,7 @@
     body
     {
       background-color:rgb(51, 51, 51);
-      font-family: Impact, sans-serif;
+      font-family: Tahoma, sans-serif;
     }
     nav
     {
@@ -44,6 +44,7 @@
     {
         color: white;
         text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+        font-family: Impact, sans-serif;
     }
     </style>
 <body onload="displayAll();">
@@ -129,17 +130,19 @@
                                 </div>
                                 <div class="modal-body">
                                         <div class="mb-3 mt-3 w-75">
-                                <input type="text" class="form-control" id="fn" placeholder="First Name" required>
-                        </div>
-                        <div class="mb-3 w-75">
-                                <input type="text" class="form-control" id="ln" placeholder="Last Name">
-                        </div>
-                        <div class="mb-3 w-75">
-                                <input type="text" class="form-control" id="pn" placeholder="xxx-xxx-xxxx">
-                        </div>
-                        <div class="mb-3 w-75">
-                                <input type="text" class="form-control" id="e" placeholder="example@email.com">
-                        </div>
+                                            <form>
+                                <input type="text" class="form-control" id="fn" placeholder="First Name" required/>
+                                    </form>
+                                </div>
+                                <div class="mb-3 w-75">
+                                        <input type="text" class="form-control" id="ln" placeholder="Last Name">
+                                </div>
+                                <div class="mb-3 w-75">
+                                        <input type="text" class="form-control" id="pn" placeholder="xxx-xxx-xxxx">
+                                </div>
+                                <div class="mb-3 w-75">
+                                        <input type="text" class="form-control" id="e" placeholder="example@email.com">
+                                </div>
                                 </div>
                                 <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
